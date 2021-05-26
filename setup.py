@@ -77,7 +77,8 @@ if __name__ == '__main__':
           version='0.1',
           author='Pan Zhang',
           author_email="pzhang.omega@gmail.com",
-          description='Deep learning with remote sensing data.',
+          description='remote sensing data tools.',
+          url='https://github.com/whu-pzhang/rsnet',
           install_requires=parse_requirements(),
           packages=find_packages(exclude=['tests']),
           classifiers=[
