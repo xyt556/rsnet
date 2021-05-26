@@ -28,6 +28,7 @@ class RasterDataSpliter(RasterSampleDataset):
                  win_size,
                  step_size,
                  suffix_tmpl='_{}_{}',
+                 keep_tsf=True,
                  to_type='uint8',
                  **kwargs):
         super().__init__(fname=fname,
@@ -38,6 +39,7 @@ class RasterDataSpliter(RasterSampleDataset):
                          **kwargs)
 
         self.suffix_tmpl = suffix_tmpl
+        self.keep_tsf = keep_tsf
 
     def run(self, outpath, progress=True):
         mkdir(outpath)
@@ -51,7 +53,10 @@ class RasterDataSpliter(RasterSampleDataset):
             pbar = tqdm(pbar)
         for x, y in pbar:
             tile, window = self.sample(x, y)
-            transform = window_transform(window, self.affine_matrix)
+            if self.keep_tsf:
+                transform = window_transform(window, self.affine_matrix)
+            else:
+                transform = None
 
             xoff, yoff = window.col_off, window.row_off
             outfile = osp.join(outpath, basename + suffix.format(xoff, yoff))
