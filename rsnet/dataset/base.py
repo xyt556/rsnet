@@ -1,6 +1,7 @@
 import os
 
 import rasterio
+import numpy as np
 
 
 class BaseRasterData:
@@ -99,3 +100,31 @@ class BaseRasterData:
         Numerical type of the data stored in raster, according to numpy.dtype
         """
         return self._band.dtypes[0]
+
+    @property
+    def minmax(self):
+        """
+        Get the min and max value for each band.
+        """
+        TILE_SIZE = 512
+        if self.height > self.width:
+            downscale_factor = TILE_SIZE / self.height
+        else:
+            downscale_factor = TILE_SIZE / self.width
+
+        rkwargs = dict(out_shape=(self.count,
+                                  int(self.height * downscale_factor),
+                                  int(self.width * downscale_factor)),
+                       resampling=rasterio.enums.Resampling.nearest)
+        buf = self._band.read(**rkwargs)
+        msk = self._band.read_masks(**rkwargs)
+
+        mins = []
+        maxs = []
+        for band, msk in zip(buf, msk):
+            imin = np.min(band[msk.astype('bool')])
+            imax = np.max(band[msk.astype('bool')])
+            mins.append(imin)
+            maxs.append(imax)
+
+        return (tuple(mins), tuple(maxs))

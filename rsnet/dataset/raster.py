@@ -3,7 +3,7 @@ import os
 import rasterio
 import numpy as np
 
-from ..utils import pair
+from ..utils import pair, bytescale
 from .base import BaseRasterData
 
 
@@ -23,6 +23,7 @@ class RasterSampleDataset(BaseRasterData):
                  step_size=512,
                  pad_size=0,
                  band_index=None,
+                 to_rgb=False,
                  transform=None):
         super().__init__(fname=fname)
         self.win_size = pair(win_size)
@@ -36,6 +37,7 @@ class RasterSampleDataset(BaseRasterData):
             assert set(band_index).issubset(set(total_band_index))
             self.band_index = band_index
 
+        self.to_rgb = to_rgb
         self.window_ids = self.get_windows_info()
         self.transform = transform
 
@@ -104,6 +106,16 @@ class RasterSampleDataset(BaseRasterData):
         #     bands = [src.read(k, window=tile_window) for k in self.band_index]
         #     tile_image = np.stack(bands, axis=-1)
         bands = [self._band.read(k, window=window) for k in self.band_index]
+        if self.to_rgb:
+            bmin, bmax = self.minmax
+            msks = [
+                self._band.read_masks(k, window=window)
+                for k in self.band_index
+            ]
+            bands = [
+                bytescale(b, msk, bmin, bmax) for b, msk in zip(bands, msks)
+            ]
+
         tile_image = np.stack(bands, axis=-1)
 
         img = np.zeros(
