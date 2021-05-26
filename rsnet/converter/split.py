@@ -3,6 +3,7 @@ import os.path as osp
 import rasterio as rio
 from affine import Affine
 from tqdm import tqdm
+import numpy as np
 
 from ..dataset import RasterSampleDataset
 from ..utils import mkdir
@@ -22,11 +23,17 @@ def window_transform(window, transform):
 
 
 class RasterDataSpliter(RasterSampleDataset):
-    def __init__(self, fname, win_size, step_size, suffix_tmpl='_{}_{}'):
+    def __init__(self,
+                 fname,
+                 win_size,
+                 step_size,
+                 suffix_tmpl='_{}_{}',
+                 to_type='uint8'):
         super().__init__(fname=fname,
                          win_size=win_size,
                          step_size=step_size,
-                         pad_size=0)
+                         pad_size=0,
+                         to_type=to_type)
 
         self.suffix_tmpl = suffix_tmpl
 
@@ -46,14 +53,17 @@ class RasterDataSpliter(RasterSampleDataset):
 
             xoff, yoff = window.col_off, window.row_off
             outfile = osp.join(outpath, basename + suffix.format(xoff, yoff))
-            meta.update(width=width, height=height, transform=transform)
+            meta.update(width=width,
+                        height=height,
+                        transform=transform,
+                        dtype=np.dtype(self.to_type))
             with rio.open(outfile, 'w', **meta) as dst:
-                dst.write(tile)
+                dst.write(tile.transpose(2, 0, 1))
 
     def sample(self, x, y):
         xmin, ymin = x, y
         xsize, ysize = self.win_size
         window = rio.windows.Window(xmin, ymin, xsize, ysize)
-        tile = self._band.read(window=window)
+        tile = super().sample(x, y)
 
         return tile, window

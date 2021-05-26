@@ -113,8 +113,8 @@ class RasterSampleDataset(BaseRasterData):
                 for k in self.band_index
             ]
             bands = [
-                bytescale(b, msk, bmin, bmax, dtype=self.to_type)
-                for b, msk in zip(bands, msks)
+                bytescale(b, msk, bmin[i], bmax[i], dtype=self.to_type)
+                for i, (b, msk) in enumerate(zip(bands, msks))
             ]
 
         tile_image = np.stack(bands, axis=-1)
