@@ -119,12 +119,8 @@ class BaseRasterData:
         buf = self._band.read(**rkwargs)
         msk = self._band.read_masks(**rkwargs)
 
-        mins = []
-        maxs = []
-        for band, msk in zip(buf, msk):
-            imin = np.min(band[msk.astype('bool')])
-            imax = np.max(band[msk.astype('bool')])
-            mins.append(imin)
-            maxs.append(imax)
+        masked_buf = np.ma.MaskedArray(buf, mask=~msk)
+        mins = masked_buf.min(axis=(1, 2)).data
+        maxs = masked_buf.max(axis=(1, 2)).data
 
-        return (tuple(mins), tuple(maxs))
+        return mins, maxs
