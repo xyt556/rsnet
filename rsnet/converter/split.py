@@ -29,7 +29,7 @@ class RasterDataSpliter(RasterSampleDataset):
                  step_size,
                  suffix_tmpl='_{}_{}',
                  keep_tsf=True,
-                 to_type='uint8',
+                 to_type=None,
                  **kwargs):
         super().__init__(fname=fname,
                          win_size=win_size,
@@ -64,7 +64,7 @@ class RasterDataSpliter(RasterSampleDataset):
                         height=height,
                         transform=transform,
                         count=len(self.band_index),
-                        dtype=np.dtype(self.to_type))
+                        dtype=np.dtype(self.to_type) if self.to_dtype else self.dtype)
             with rio.open(outfile, 'w', **meta) as dst:
                 dst.write(tile.transpose(2, 0, 1))
 

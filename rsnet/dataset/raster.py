@@ -106,7 +106,7 @@ class RasterSampleDataset(BaseRasterData):
         #     bands = [src.read(k, window=tile_window) for k in self.band_index]
         #     tile_image = np.stack(bands, axis=-1)
         bands = [self._band.read(k, window=window) for k in self.band_index]
-        if self.to_type is not None:
+        if self.to_type and np.dtype(self.to_type) != np.dtype(self.dtype):
             bmin, bmax = self.minmax
             msks = [
                 self._band.read_masks(k, window=window)
