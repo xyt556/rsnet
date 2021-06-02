@@ -64,7 +64,7 @@ class RasterDataSpliter(RasterSampleDataset):
                         height=height,
                         transform=transform,
                         count=len(self.band_index),
-                        dtype=np.dtype(self.to_type) if self.to_dtype else self.dtype)
+                        dtype=np.dtype(self.to_type) if self.to_type else self.dtype)
             with rio.open(outfile, 'w', **meta) as dst:
                 dst.write(tile.transpose(2, 0, 1))
 
