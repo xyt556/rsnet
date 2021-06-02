@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import rasterio
 import numpy as np
@@ -66,14 +66,14 @@ class BaseRasterData:
         """
         Name of the file, without extension and the directory path
         """
-        return os.path.basename(self._band.name).split('.')[0]
+        return Path(self._band.name).stem
 
     @property
     def suffix(self):
         """
         Name of the file, without extension and the directory path
         """
-        return os.path.basename(self._band.name).split('.')[1]
+        return Path(self._band.name).suffix
 
     @property
     def bounds(self):
