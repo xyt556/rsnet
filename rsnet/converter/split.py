@@ -44,7 +44,7 @@ class RasterDataSpliter(RasterSampleDataset):
     def run(self, outpath, progress=True):
         mkdir(outpath)
         basename = self.name
-        suffix = f'{self.suffix_tmpl}.{self.suffix}'
+        suffix = self.suffix_tmpl + self.suffix
         meta = self.meta
         width, height = self.win_size
 
