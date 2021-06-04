@@ -101,8 +101,7 @@ class BaseRasterData:
         """
         return self._band.dtypes[0]
 
-    @property
-    def minmax(self):
+    def minmax(self, band_index):
         """
         Get the min and max value for each band.
         """
@@ -112,15 +111,14 @@ class BaseRasterData:
         else:
             downscale_factor = TILE_SIZE / self.width
 
-        rkwargs = dict(out_shape=(self.count,
-                                  int(self.height * downscale_factor),
+        count = len(band_index)
+        rkwargs = dict(out_shape=(1, int(self.height * downscale_factor),
                                   int(self.width * downscale_factor)),
                        resampling=rasterio.enums.Resampling.nearest)
-        buf = self._band.read(**rkwargs)
-        msk = self._band.read_masks(**rkwargs)
+        buf = np.stack(
+            [self._band.read(b, **rkwargs, masked=True) for b in band_index])
 
-        masked_buf = np.ma.MaskedArray(buf, mask=~msk)
-        mins = masked_buf.min(axis=(1, 2)).data
-        maxs = masked_buf.max(axis=(1, 2)).data
+        mins = buf.min(axis=(1, 2)).data
+        maxs = buf.max(axis=(1, 2)).data
 
         return mins, maxs

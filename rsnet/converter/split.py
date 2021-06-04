@@ -36,6 +36,7 @@ class RasterDataSpliter(RasterSampleDataset):
                          step_size=step_size,
                          pad_size=0,
                          to_type=to_type,
+                         data_format='channel_first',
                          **kwargs)
 
         self.suffix_tmpl = suffix_tmpl
@@ -60,13 +61,14 @@ class RasterDataSpliter(RasterSampleDataset):
 
             xoff, yoff = window.col_off, window.row_off
             outfile = osp.join(outpath, basename + suffix.format(xoff, yoff))
-            meta.update(width=width,
-                        height=height,
-                        transform=transform,
-                        count=len(self.band_index),
-                        dtype=np.dtype(self.to_type) if self.to_type else self.dtype)
+            meta.update(
+                width=width,
+                height=height,
+                transform=transform,
+                count=len(self.band_index),
+                dtype=np.dtype(self.to_type) if self.to_type else self.dtype)
             with rio.open(outfile, 'w', **meta) as dst:
-                dst.write(tile.transpose(2, 0, 1))
+                dst.write(tile)
 
     def sample(self, x, y):
         xmin, ymin = x, y

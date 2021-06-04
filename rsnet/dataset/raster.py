@@ -28,10 +28,11 @@ class RasterSampleDataset(BaseRasterData):
                  transform=None):
         super().__init__(fname=fname)
 
-        assert data_format is ('channel_first', 'channel_last'
-                               ), "data format must be 'channel_first' or "
+        assert data_format in (
+            'channel_first',
+            'channel_last'), "data format must be 'channel_first' or "
         f"'channel_last', but got type {data_format}"
-        self.data_format == data_format
+        self.data_format = data_format
 
         self.win_size = pair(win_size)
         self.step_size = pair(step_size)
@@ -114,7 +115,7 @@ class RasterSampleDataset(BaseRasterData):
         #     tile_image = np.stack(bands, axis=-1)
         bands = [self._band.read(k, window=window) for k in self.band_index]
         if self.to_type and np.dtype(self.to_type) != np.dtype(self.dtype):
-            bmin, bmax = self.minmax
+            bmin, bmax = self.minmax(self.band_index)
             msks = [
                 self._band.read_masks(k, window=window)
                 for k in self.band_index
