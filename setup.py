@@ -73,7 +73,7 @@ def parse_requirements(fname='requirements.txt', with_version=True):
 if __name__ == '__main__':
 
     setup(name='rsnet',
-          version='0.1.2',
+          version='0.1.3',
           author='Pan Zhang',
           author_email="pzhang.omega@gmail.com",
           description='remote sensing data tools.',
