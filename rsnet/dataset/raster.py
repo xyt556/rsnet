@@ -24,8 +24,15 @@ class RasterSampleDataset(BaseRasterData):
                  pad_size=0,
                  band_index=None,
                  to_type=None,
+                 data_format='channel_last',
                  transform=None):
         super().__init__(fname=fname)
+
+        assert data_format is ('channel_first', 'channel_last'
+                               ), "data format must be 'channel_first' or "
+        f"'channel_last', but got type {data_format}"
+        self.data_format == data_format
+
         self.win_size = pair(win_size)
         self.step_size = pair(step_size)
         self.pad_size = pair(pad_size)
@@ -118,13 +125,14 @@ class RasterSampleDataset(BaseRasterData):
             ]
 
         tile_image = np.stack(bands, axis=-1)
-
         img = np.zeros(
             (self.win_size[0] + 2 * xpad, self.win_size[0] + 2 * ypad,
              len(self.band_index)),
             dtype=tile_image.dtype)
-
         img[top:top + ysize, left:left + xsize] = tile_image
+
+        if self.data_format == 'channel_first':
+            img = img.transpose(2, 0, 1)
 
         return img
 
