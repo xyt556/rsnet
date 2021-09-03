@@ -1,3 +1,6 @@
 rasterio>=1.0.0
 numpy
 fiona
+shapely
+simplification
+
