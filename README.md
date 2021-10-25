@@ -66,11 +66,23 @@ ret_metrics = eval_seg(pred_fname,
 4. Rasterize vector to raster
 
 ```python
+import rasterio as rio
 from rsnet.converter import rasterize
 
 vfile = '/path/to/vectorfile'
 rfile = '/path/to/reference/rasterfile'
-output = '/path/to/output'
 
-rasterize(vfile, output, 'GTiff', rfile)
+image = rasterize(vfile, rfile, property='id')
+
+# write file
+with rio.open(rfile, 'r') as src:
+    with rio.open('rasterized-results.tif',
+                  'w',
+                  driver='GTiff',
+                  dtype=rio.uint8,
+                  count=1,
+                  width=src.width,
+                  height=src.height,
+                  transform=src.transform) as dst:
+        dst.write(image, indexes=1)
 ```
